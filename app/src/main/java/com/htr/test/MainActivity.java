@@ -1,6 +1,10 @@
 package com.htr.test;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.Configuration;
+import androidx.work.Constraints;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -9,9 +13,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Process;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.htr.test.workmanager.MyWork;
 
 public class MainActivity extends AppCompatActivity {
     long THIRTY_SECOND = 30 * 1000;
@@ -23,20 +30,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Button btnSchedulerJob = findViewById(R.id.btnScheduler);
-        btnSchedulerJob.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                scheduleJob();
-            }
-        });
+        btnSchedulerJob.setOnClickListener(view -> scheduleJob());
 
         Button btnCancelJob = findViewById(R.id.btnCancel);
-        btnCancelJob.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cancelJob();
-            }
-        });
+        btnCancelJob.setOnClickListener(view -> cancelJob());
     }
 
     @Override
@@ -58,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, e.getMessage());
         }
 
-        Log.i(TAG,"version: " + versionCode);
+        int tid = Process.myTid();
+        Log.i(TAG,"version: " + versionCode + ", main thread: " + tid);
     }
 
     private void scheduleJob() {
@@ -82,5 +80,25 @@ public class MainActivity extends AppCompatActivity {
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         Log.i(TAG, "cancel: " + jobId);
         scheduler.cancel(jobId);
+    }
+
+    private void enqueueWork(Context context) {
+        // Create charging constraint
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresDeviceIdle(false)
+                .build();
+
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(MyWork.class)
+                .setConstraints(constraints)
+                .addTag(TAG)
+                .build();
+
+        Configuration configuration = new Configuration.Builder()
+                .setJobSchedulerJobIdRange(0, 100).build();
+
+        WorkManager.initialize(context, configuration);
+        WorkManager workManager = WorkManager.getInstance(context);
+        workManager.enqueue(request);
+
     }
 }
