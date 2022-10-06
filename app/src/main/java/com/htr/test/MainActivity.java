@@ -1,15 +1,12 @@
 package com.htr.test;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.work.Configuration;
-import androidx.work.Constraints;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -18,7 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.htr.test.workmanager.MyWork;
+import com.htr.test.utils.JNIUtil;
+import com.htr.test.workmanager.WorkActivity;
 
 public class MainActivity extends AppCompatActivity {
     long THIRTY_SECOND = 30 * 1000;
@@ -29,11 +27,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        OnClickListener clickListener = new OnClickListener();
+
         Button btnSchedulerJob = findViewById(R.id.btnScheduler);
-        btnSchedulerJob.setOnClickListener(view -> scheduleJob());
+        btnSchedulerJob.setOnClickListener(clickListener);
 
         Button btnCancelJob = findViewById(R.id.btnCancel);
-        btnCancelJob.setOnClickListener(view -> cancelJob());
+        btnCancelJob.setOnClickListener(clickListener);
+
+        Button btnWorkActivity = findViewById(R.id.btnWorkActivity);
+        btnWorkActivity.setOnClickListener(clickListener);
+
     }
 
     @Override
@@ -42,6 +46,27 @@ public class MainActivity extends AppCompatActivity {
 
         printBaseInfo();
 
+    }
+
+    private class OnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.btnWorkActivity:
+                    startActivity(new Intent(MainActivity.this, WorkActivity.class));
+                    break;
+                    // TODO move job to WorkManager pkg
+                case R.id.btnScheduler:
+                    scheduleJob();
+                    break;
+                case R.id.btnCancel:
+                    cancelJob();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     private void printBaseInfo() {
@@ -82,23 +107,5 @@ public class MainActivity extends AppCompatActivity {
         scheduler.cancel(jobId);
     }
 
-    private void enqueueWork(Context context) {
-        // Create charging constraint
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresDeviceIdle(false)
-                .build();
 
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(MyWork.class)
-                .setConstraints(constraints)
-                .addTag(TAG)
-                .build();
-
-        Configuration configuration = new Configuration.Builder()
-                .setJobSchedulerJobIdRange(0, 100).build();
-
-        WorkManager.initialize(context, configuration);
-        WorkManager workManager = WorkManager.getInstance(context);
-        workManager.enqueue(request);
-
-    }
 }
