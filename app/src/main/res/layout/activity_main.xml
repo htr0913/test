@@ -28,10 +28,21 @@
         />
 
     <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnAlgorithmsActivity"
+        android:text="Start Algorithms Activity"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnWorkActivity"
+
+        />
+
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/btnScheduler"
-        app:layout_constraintTop_toBottomOf="@id/btnWorkActivity"
+        app:layout_constraintTop_toBottomOf="@id/btnAlgorithmsActivity"
         android:text="scheduler job"/>
 
     <Button

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.htr.test.algorithms.AlgorithmsActivity;
 import com.htr.test.utils.JNIUtil;
 import com.htr.test.workmanager.WorkActivity;
 
@@ -29,15 +30,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         OnClickListener clickListener = new OnClickListener();
 
-        Button btnSchedulerJob = findViewById(R.id.btnScheduler);
-        btnSchedulerJob.setOnClickListener(clickListener);
-
-        Button btnCancelJob = findViewById(R.id.btnCancel);
-        btnCancelJob.setOnClickListener(clickListener);
-
-        Button btnWorkActivity = findViewById(R.id.btnWorkActivity);
-        btnWorkActivity.setOnClickListener(clickListener);
-
+        findViewById(R.id.btnScheduler).setOnClickListener(clickListener);
+        findViewById(R.id.btnCancel).setOnClickListener(clickListener);
+        findViewById(R.id.btnWorkActivity).setOnClickListener(clickListener);
+        findViewById(R.id.btnAlgorithmsActivity).setOnClickListener(clickListener);
     }
 
     @Override
@@ -55,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
             switch (view.getId()) {
                 case R.id.btnWorkActivity:
                     startActivity(new Intent(MainActivity.this, WorkActivity.class));
+                    break;
+                case R.id.btnAlgorithmsActivity:
+                    startActivity(new Intent(MainActivity.this, AlgorithmsActivity.class));
                     break;
                     // TODO move job to WorkManager pkg
                 case R.id.btnScheduler:
